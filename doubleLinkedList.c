@@ -187,7 +187,7 @@ Node * pushPosition(Node *_list, int _data, int _position){
         listAux = listAux->next;
       }
       newNode->next = listAux->next;
-      listAux->previous = newNode;
+      listAux->next->previous = newNode;
       listAux->next = newNode;
       newNode->previous = listAux;
     }  
@@ -210,6 +210,9 @@ Node * popFirst(Node *_list){
   if (_list) {
     listAux=_list;
     _list=_list->next;
+    if (_list) {
+      _list->previous = NULL;
+    }
     free(listAux);
   }
   return _list;
@@ -238,17 +241,21 @@ Node * popPosition(Node *_list, int _position){
   int listSize = 0, i = 0;
   listSize = theSize(_list);
   if (listSize) {
-    if (_position <= listSize) {
-      listAux = _list;
-      for(i = 1; i < _position; i++){
-        listAux = listAux->next;
+    if (listSize > 1) {
+      if (_position <= listSize) {
+        listAux = _list;
+        for(i = 1; i < _position; i++){
+          listAux = listAux->next;
+        }
+        listDelete = listAux->next;
+        listAux->next = listDelete->next;
+        listAux->next->previous = listAux;
+        free(listDelete);
+      }else{
+        printf("Posicion inexistente");
       }
-      listDelete = listAux->next;
-      listAux->next = listDelete->next;
-      listDelete->previous = listAux;
-      free(listDelete);
-    }else{
-      printf("Posicion inexistente");
+    }else {
+      _list = popFirst( _list);
     }
   }else{
     printf("La lista no tiene elementos");
@@ -293,13 +300,32 @@ Node * changeItem(Node *_list, int _data, int _item){
 
 /*Inicio bloque mostrar, tamaño y buscar*/
 void show(Node *_list){
-  if (!_list){
-    printf("Vacia");
-  }
-  while(_list){
-    printf("%i\t", _list->data);
-    _list = _list->next;
-  } 
+  int opt =0;
+  do {
+    printf("\n1. Moverse a la derecha\n2. Moverse a la izquierda\n-1. Salir\nIngresa opcion deseada: ");
+    fflush(stdin);
+    scanf("%i", &opt);
+    switch (opt) {
+      case 1:
+        if (_list->next) {
+          _list=_list->next;
+          printf("\nDato: %i",_list->data);
+        }else {
+          printf("\nVacia a la derecha");
+        }
+      break;
+      case 2:
+       if (_list->previous) {
+          _list=_list->previous;
+          printf("\nDato: %i",_list->data);
+        }else {
+          printf("\nVacia a la Izquierda");
+        }
+      break;      
+    }
+  } while (opt != -1); 
+  
+
 }
 
 int theSize(Node *_list){
